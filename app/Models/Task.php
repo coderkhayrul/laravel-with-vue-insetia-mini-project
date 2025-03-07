@@ -10,4 +10,9 @@ class Task extends Pivot
     use HasFactory;
 
     protected $guarded = [];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
