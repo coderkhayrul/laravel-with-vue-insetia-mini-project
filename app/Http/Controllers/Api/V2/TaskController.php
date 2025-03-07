@@ -17,6 +17,7 @@ class TaskController extends Controller
      */
     public function index()
     {
+        Gate::authorize('viewAny', Task::class);
         return TaskResource::collection(auth()->user()->tasks()->get());
     }
 
@@ -25,6 +26,9 @@ class TaskController extends Controller
      */
     public function store(TaskStoreRequest $request)
     {
+        if (request()->user()->cannot('create', Task::class)) {
+            abort(403, 'You are not authorized to create a task.');
+        }
         $task = $request->user()->tasks()->create($request->validated());
 
         return TaskResource::make($task);
@@ -44,6 +48,10 @@ class TaskController extends Controller
      */
     public function update(TaskUpdateRequest $request, Task $task)
     {
+        if ($request->user()->cannot('update', $task)) {
+            abort(403, 'You are not authorized to update this task.');
+        }
+
         $task->update($request->validated());
 
         return TaskResource::make($task);
@@ -54,6 +62,10 @@ class TaskController extends Controller
      */
     public function destroy(Task $task)
     {
+        if (request()->user()->cannot('delete', $task)) {
+            abort(403, 'You are not authorized to delete this task.');
+        }
+
         $task->delete();
 
         return response()->noContent();
