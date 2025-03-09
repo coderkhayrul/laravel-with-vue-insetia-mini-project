@@ -7,6 +7,7 @@ use App\Http\Requests\TaskStoreRequest;
 use App\Http\Requests\TaskUpdateRequest;
 use App\Http\Resources\TaskResource;
 use App\Models\Task;
+use Illuminate\Container\Attributes\Auth;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
@@ -24,8 +25,9 @@ class TaskController extends Controller
      */
     public function store(TaskStoreRequest $request)
     {
-        $task = Task::create($request->validated());
 
+        $request['user_id'] = 1;
+        $task = Task::create($request->validated());
         return TaskResource::make($task);
     }
 
@@ -40,10 +42,12 @@ class TaskController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(TaskUpdateRequest $request, Task $task)
+    public function update(Request $request, Task $task)
     {
-        $task->update($request->validated());
-
+        $task->update([
+            'name' => $request->name,
+            'user_id' => 1,
+        ]);
         return TaskResource::make($task);
     }
 
